@@ -38,19 +38,44 @@ def index():
 
 @app.route('/register', methods=['POST'])
 def register():
+    # Get form data
+    firstname = request.form.get('firstname')
+    lastname = request.form.get('lastname')
+    email = request.form.get('email')
+    password = request.form.get('password')
+    confirm_password = request.form.get('confirm_password')
+
+    # Basic validation
+    if not firstname or not lastname or not email or not password or not confirm_password:
+        return "All fields are required!", 400
+
+    if password != confirm_password:
+        return "Passwords do not match!", 400
+
+    # Combine first and last name to create username
+    username = f"{firstname} {lastname}"
+
+    # Check if the username already exists
+    existing_user = User.query.filter_by(username=username).first()
+    if existing_user:
+        return "User with this name already exists!", 400
+
+    # Create new user
     new_user = User(
-        username=request.form.get('username'),
-        gender=request.form.get('Gender'),     # Case-sensitive
-        birthday=request.form.get('Birthday'), # Case-sensitive
-        phone=request.form.get('phone'),
-        address=request.form.get('address'),
-        password=request.form.get('password')
+        username=username,
+        password=password,
+        gender=None,   # no gender field in your HTML
+        birthday=None, # no birthday field in your HTML
+        phone=None,    # no phone field in your HTML
+        address=None   # no address field in your HTML
     )
 
+    # Save to database
     db.session.add(new_user)
     db.session.commit()
 
     return render_template('success.html')
+
 
 @app.route('/users')
 def view_users():
@@ -60,3 +85,4 @@ def view_users():
 # --- RUN ---
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
+
