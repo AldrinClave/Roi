@@ -1,7 +1,6 @@
 import os
 from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
 
 app = Flask(__name__)
 
@@ -21,11 +20,12 @@ class User(db.Model):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(100), nullable=False)
-    last_name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(150), nullable=False)
-    password = db.Column(db.String(255), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    username = db.Column(db.String(80), nullable=False)
+    gender = db.Column(db.String(20))
+    birthday = db.Column(db.String(50))
+    phone = db.Column(db.String(20))
+    address = db.Column(db.String(200))
+    password = db.Column(db.String(120), nullable=False)
 
 # --- CREATE TABLES ON STARTUP (Gunicorn safe) ---
 with app.app_context():
@@ -39,9 +39,11 @@ def index():
 @app.route('/register', methods=['POST'])
 def register():
     new_user = User(
-        first_name=request.form.get('firstname'),
-        last_name=request.form.get('lastname'),
-        email=request.form.get('email'),
+        username=request.form.get('username'),
+        gender=request.form.get('Gender'),     # Case-sensitive
+        birthday=request.form.get('Birthday'), # Case-sensitive
+        phone=request.form.get('phone'),
+        address=request.form.get('address'),
         password=request.form.get('password')
     )
 
