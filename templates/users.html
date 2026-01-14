@@ -11,29 +11,33 @@
     <div class="sbx">
         <h2 class="header1">Registered Users</h2>
 
-        <table style="width:100%; color:white; margin-top:20px;">
-            <tr>
-                <th>Username</th>
-                <th>Gender</th>
-                <th>Birthday</th>
-                <th>Phone</th>
-                <th>Address</th>
+        {% if users %}
+        <table style="width:100%; color:white; margin-top:20px; border-collapse: collapse;">
+            <tr style="border-bottom: 1px solid white;">
+                <th style="padding: 8px;">First Name</th>
+                <th style="padding: 8px;">Last Name</th>
+                <th style="padding: 8px;">Email</th>
+                <th style="padding: 8px;">Created</th>
             </tr>
 
             {% for user in users %}
-            <tr>
-                <td>{{ user.username }}</td>
-                <td>{{ user.gender or 'N/A' }}</td>
-                <td>{{ user.birthday or 'N/A' }}</td>
-                <td>{{ user.phone or 'N/A' }}</td>
-                <td>{{ user.address or 'N/A' }}</td>
+            <tr style="border-bottom: 1px solid white;">
+                <td style="padding: 8px;">{{ user.first_name }}</td>
+                <td style="padding: 8px;">{{ user.last_name }}</td>
+                <td style="padding: 8px;">{{ user.email }}</td>
+                <td style="padding: 8px;">{{ user.created_at.strftime('%Y-%m-%d') }}</td>
             </tr>
             {% endfor %}
         </table>
+        {% else %}
+        <p style="text-align:center; color:white; margin-top:20px;">No users registered yet.</p>
+        {% endif %}
 
-        <a href="{{ url_for('index') }}">
-            <button class="submit">Back to Register</button>
-        </a>
+        <div style="text-align:center; margin-top:20px;">
+            <a href="{{ url_for('index') }}">
+                <button class="submit">Back to Register</button>
+            </a>
+        </div>
     </div>
 </div>
 </body>
