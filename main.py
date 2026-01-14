@@ -3,7 +3,6 @@ from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
-
 app = Flask(__name__)
 
 # --- DATABASE CONFIG ---
@@ -17,7 +16,11 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-id = db.Column(db.Integer, primary_key=True)
+# --- MODEL ---
+class User(db.Model):
+    __tablename__ = "users"
+
+    id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(100), nullable=False)
     last_name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(150), nullable=False)
@@ -55,4 +58,3 @@ def view_users():
 # --- RUN ---
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
-
