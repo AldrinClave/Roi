@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Success</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+<div class="lbx">
+    <div class="sbx" style="text-align:center;">
+        <h2 class="header1">Registration Successful 🎉</h2>
+        <p class="header2">Your account has been created.</p>
+
+        <a href="{{ url_for('view_users') }}">
+            <button class="submit">View Users</button>
+        </a>
+
+        <a href="{{ url_for('home') }}">
+            <button class="submit">Back to Register</button>
+        </a>
+    </div>
+</div>
+</body>
+</html>
