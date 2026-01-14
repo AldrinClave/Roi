@@ -1,8 +1,9 @@
 import os
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
+app.secret_key = "supersecretkey"  # Needed for flash messages
 
 # --- DATABASE CONFIG ---
 database_url = os.getenv("MYSQL_URL")
@@ -20,14 +21,13 @@ class User(db.Model):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), nullable=False)
-    gender = db.Column(db.String(20))
-    birthday = db.Column(db.String(50))
-    phone = db.Column(db.String(20))
-    address = db.Column(db.String(200))
+    first_name = db.Column(db.String(80), nullable=False)
+    last_name = db.Column(db.String(80), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
 
-# --- CREATE TABLES ON STARTUP (Gunicorn safe) ---
+# --- CREATE TABLES ON STARTUP ---
 with app.app_context():
     db.create_all()
 
@@ -38,51 +38,40 @@ def index():
 
 @app.route('/register', methods=['POST'])
 def register():
-    # Get form data
     firstname = request.form.get('firstname')
     lastname = request.form.get('lastname')
     email = request.form.get('email')
     password = request.form.get('password')
     confirm_password = request.form.get('confirm_password')
 
-    # Basic validation
-    if not firstname or not lastname or not email or not password or not confirm_password:
-        return "All fields are required!", 400
-
+    # Password check
     if password != confirm_password:
-        return "Passwords do not match!", 400
+        flash("Passwords do not match!", "error")
+        return redirect(url_for('index'))
 
-    # Combine first and last name to create username
-    username = f"{firstname} {lastname}"
-
-    # Check if the username already exists
-    existing_user = User.query.filter_by(username=username).first()
-    if existing_user:
-        return "User with this name already exists!", 400
+    # Check if email already exists
+    if User.query.filter_by(email=email).first():
+        flash("Email already registered!", "error")
+        return redirect(url_for('index'))
 
     # Create new user
     new_user = User(
-        username=username,
-        password=password,
-        gender=None,   # no gender field in your HTML
-        birthday=None, # no birthday field in your HTML
-        phone=None,    # no phone field in your HTML
-        address=None   # no address field in your HTML
+        first_name=firstname,
+        last_name=lastname,
+        email=email,
+        password=password  # For production, hash passwords!
     )
 
-    # Save to database
     db.session.add(new_user)
     db.session.commit()
 
     return render_template('success.html')
 
-
 @app.route('/users')
 def view_users():
-    users = User.query.all()
+    users = User.query.order_by(User.created_at.desc()).all()
     return render_template('users.html', users=users)
 
 # --- RUN ---
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
-
